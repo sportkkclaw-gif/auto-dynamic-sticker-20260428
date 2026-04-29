@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+
+# Environment files - contains DATABASE_URL with local SQLite
+.env
+.env.local
+.env.*.local
+
+# SQLite databases
+*.db
+*.db-journal
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel/
+
+# TypeScript build info
+*.tsbuildinfo

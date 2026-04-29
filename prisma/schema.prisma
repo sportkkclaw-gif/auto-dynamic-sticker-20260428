@@ -1,0 +1,403 @@
+// AUTO動態貼圖 — Prisma schema
+// Single source of truth for all data models
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Roles: ADMIN | EDITOR | USER
+// ProjectStatus: DRAFT | PROCESSING | DONE | FAILED
+// StickerItemStatus: PENDING | RENDERING | DONE | FAILED
+// ApngOutputStatus: PENDING | DONE | FAILED
+// ExportStatus: PENDING | READY | DOWNLOADED | FAILED
+// CreditTxType: GRANT | PURCHASE | CONSUME | REFUND
+// AuditAction: PROJECT_CREATE | PROJECT_UPDATE | PROJECT_DELETE | ASSET_UPLOAD | STYLE_LOCK_CREATE | BRIEF_GENERATE | STICKER_RENDER | MOTION_APPLY | QC_RUN | EXPORT_CREATE | EXPORT_DOWNLOAD | CREDIT_PURCHASE | ADMIN_RISK_RULE_WRITE | ADMIN_TEMPLATE_WRITE | LOGIN | LOGOUT
+// RiskRuleLevel: P0 | P1 | P2
+
+// ─── Core Entities ─────────────────────────────────────────────────────────────
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String    // bcrypt hash in production; plaintext for demo only
+  role      String    @default("USER")    // ADMIN | EDITOR | USER
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  projects         Project[]
+  sessions         Session[]
+  teamMemberships TeamMembership[]
+
+  // Credit ledger
+  creditBalance   Int         @default(0)
+  creditTxs       CreditTransaction[]
+
+  // Audit logs scoped to this user
+  auditLogs        AuditLog[]
+
+  @@index([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@map("session")
+}
+
+// ─── Team / Organization ───────────────────────────────────────────────────────
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships    TeamMembership[]
+  projects       Project[]
+  creditTxs      CreditTransaction[]
+  auditLogs      AuditLog[]
+
+  // Admin overrides
+  riskRules      RiskRule[]
+  motionTemplates MotionTemplate[]
+
+  @@map("team")
+}
+
+model TeamMembership {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      String   @default("EDITOR") // mirrors User.role: ADMIN | EDITOR | USER
+  joinedAt  DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+  @@index([teamId])
+  @@map("team_membership")
+}
+
+// ─── Project ──────────────────────────────────────────────────────────────────
+
+model Project {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      String    @default("DRAFT") // DRAFT | PROCESSING | DONE | FAILED
+  userId      String
+  teamId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team        Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  // Character & style
+  characterAssets CharacterAsset[]
+  styleLock      StyleLock?
+  stickerBrief   StickerBrief?
+
+  // Sticker items & APNG outputs
+  stickerItems   StickerItem[]
+  apngOutputs    ApngOutput[]
+
+  // QC & Export
+  qcReport        QcReport?
+  exportPackage   ExportPackage?
+
+  // Audit logs
+  auditLogs       AuditLog[]
+
+  @@index([userId])
+  @@index([teamId])
+  @@index([status])
+  @@map("project")
+}
+
+// ─── Character Asset ───────────────────────────────────────────────────────────
+
+model CharacterAsset {
+  id           String   @id @default(cuid())
+  projectId    String
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  storagePath  String
+  uploadedAt   DateTime @default(now())
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  licenseAgreed    Boolean @default(false)
+  licenseAgreedAt  DateTime?
+
+  @@index([projectId])
+  @@map("character_asset")
+}
+
+// ─── Style Lock ───────────────────────────────────────────────────────────────
+
+model StyleLock {
+  id         String   @id @default(cuid())
+  projectId  String   @unique
+  styleCode  String
+  styleName  String
+  provider   String   @default("mock")
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("style_lock")
+}
+
+// ─── Sticker Brief ─────────────────────────────────────────────────────────────
+
+model StickerBrief {
+  id          String   @id @default(cuid())
+  projectId   String   @unique
+  briefText   String
+  promptHash  String
+  provider    String   @default("mock")
+  metadata    String?
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("sticker_brief")
+}
+
+// ─── Sticker Item ─────────────────────────────────────────────────────────────
+
+model StickerItem {
+  id              String    @id @default(cuid())
+  projectId       String
+  index           Int       // 1-based sticker index (1–24)
+  status          String    @default("PENDING") // PENDING | RENDERING | DONE | FAILED
+  targetWidth     Int       @default(240)
+  targetHeight    Int       @default(240)
+  loopCount       Int       @default(1)
+  playbackSeconds Float     @default(1.0)
+  errorMessage    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // 1-1 back-reference to ApngOutput via ApngOutput.stickerItemId
+  apngOutput      ApngOutput? @relation("StickerItemOutput")
+
+  @@unique([projectId, index])
+  @@index([projectId])
+  @@index([status])
+  @@map("sticker_item")
+}
+
+// ─── APNG Output ─────────────────────────────────────────────────────────────
+
+model ApngOutput {
+  id            String   @id @default(cuid())
+  stickerItemId String   @unique
+  projectId     String
+
+  frames           Int     @default(0)
+  width            Int     @default(0)
+  height           Int     @default(0)
+  fileBytes        Int     @default(0)
+  hasTransparency  Boolean @default(true)
+  colorSpace       String  @default("RGB")
+  loopCount        Int     @default(1)
+  playbackSeconds  Float   @default(1.0)
+  opacityNotFull    Boolean @default(false)
+  storagePath      String?
+
+  status           String  @default("PENDING") // PENDING | DONE | FAILED
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  stickerItem      StickerItem @relation("StickerItemOutput", fields: [stickerItemId], references: [id], onDelete: Cascade)
+  project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([status])
+  @@map("apng_output")
+}
+
+// ─── QC Report ────────────────────────────────────────────────────────────────
+
+model QcReport {
+  id           String   @id @default(cuid())
+  projectId    String   @unique
+
+  stickerCount    Int      @default(0)
+  apngFrames      Int      @default(0)
+  apngWidth       Int      @default(0)
+  apngHeight      Int      @default(0)
+  zipBytes        Int      @default(0)
+  mainImageW      Int      @default(0)
+  mainImageH      Int      @default(0)
+  tabImageW       Int      @default(0)
+  tabImageH       Int      @default(0)
+  hasTransparent  Boolean @default(true)
+  colorSpace      String  @default("RGB")
+
+  passed          Boolean @default(false)
+  exportBlocked   Boolean @default(false)
+  p0Count         Int     @default(0)
+  p1Count         Int     @default(0)
+  p2Count         Int     @default(0)
+  passedChecks    Int     @default(0)
+  totalChecks     Int     @default(0)
+
+  findingsJson   String?
+
+  generatedAt     DateTime @default(now())
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("qc_report")
+}
+
+// ─── Export Package ────────────────────────────────────────────────────────────
+
+model ExportPackage {
+  id             String   @id @default(cuid())
+  projectId      String   @unique
+
+  zipBytes       Int      @default(0)
+  zipStoragePath String?
+  manifestJson   String?
+  qcReportJson   String?
+
+  status         String   @default("PENDING") // PENDING | READY | DOWNLOADED | FAILED
+  createdAt      DateTime @default(now())
+  downloadedAt   DateTime?
+
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("export_package")
+}
+
+// ─── Credit Ledger ─────────────────────────────────────────────────────────────
+
+model CreditTransaction {
+  id            String   @id @default(cuid())
+  teamId        String
+  userId        String
+
+  type          String   // GRANT | PURCHASE | CONSUME | REFUND
+  amount        Int
+  balanceBefore Int
+  balanceAfter  Int
+
+  projectId     String?
+  description   String?
+  metadata      String?
+
+  createdAt     DateTime @default(now())
+
+  team          Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("credit_transaction")
+}
+
+// ─── Audit Log ─────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  teamId     String?
+  projectId  String?
+  userId     String
+
+  action     String   // PROJECT_CREATE | PROJECT_UPDATE | PROJECT_DELETE | ASSET_UPLOAD | STYLE_LOCK_CREATE | BRIEF_GENERATE | STICKER_RENDER | MOTION_APPLY | QC_RUN | EXPORT_CREATE | EXPORT_DOWNLOAD | CREDIT_PURCHASE | ADMIN_RISK_RULE_WRITE | ADMIN_TEMPLATE_WRITE | LOGIN | LOGOUT
+  resource   String?
+  detail     String?
+  metadata   String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  team       Team?    @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([projectId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// ─── Risk Rules (admin-managed) ────────────────────────────────────────────────
+
+model RiskRule {
+  id        String   @id @default(cuid())
+  teamId    String
+
+  code      String   @unique  // e.g. "ANIMATED_STICKER_MAX_FRAMES"
+  level     String   // P0 | P1 | P2
+  message   String
+  detail    String?
+  enabled   Boolean  @default(true)
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teamId])
+  @@map("risk_rule")
+}
+
+// ─── Motion Templates (admin-managed) ──────────────────────────────────────────
+
+model MotionTemplate {
+  id          String   @id @default(cuid())
+  teamId      String
+
+  code        String   // e.g. "bobble", "float", "wiggle"
+  name        String
+  description String?
+
+  definition  String   // JSON serialized MotionTemplateDefinition
+
+  riskLevel   String   @default("stable") // stable | expressive | extreme_limited
+  enabled     Boolean  @default(true)
+
+  team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([teamId, code])
+  @@index([teamId])
+  @@map("motion_template")
+}

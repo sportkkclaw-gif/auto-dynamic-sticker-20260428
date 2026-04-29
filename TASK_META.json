@@ -1,0 +1,262 @@
+{
+  "schema_version": "truth-pack.v1",
+  "task_id": "20260428_line_animated_sticker_autogen",
+  "title": "AUTO動態貼圖 開發案",
+  "status": "approved",
+  "formal_status": "approved",
+  "current_lane": "05_驗收通過/sebastian",
+  "source_task_path": "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sophie_research__20260428_line_animated_sticker_autogen",
+  "next_agent": "user",
+  "next_event": null,
+  "internal_next_action": "await_simon_review",
+  "created_at": "2026-04-28T19:59:42+08:00",
+  "updated_at": "2026-04-29T18:56:34+08:00",
+  "product_mode": "web_first",
+  "required_entry": "SEBASTIAN_START_PROMPT.md",
+  "user_correction": "user_provided_character_images_only; app transforms/animates uploaded characters; no platform text-to-character main flow",
+  "completed_this_round": [
+    "nextjs15_typescript_app_router_scaffold",
+    "api_health_auth_login_projects_routes",
+    "demo_auth_and_rbac_middleware",
+    "prisma_schema_initial",
+    "windows_d_drive_build_pass",
+    "line_spec_single_source_and_qc_export_gate",
+    "zip_export_manifest_qc_report",
+    "qc_regression_tests_added_and_build_unblocked",
+    "real_prisma_db_wiring_verified",
+    "qc_credit_motion_regression_fixes_and_tests",
+    "brief_keyframe_motion_pipeline_implemented",
+    "auto_degrade_pipeline_implemented",
+    "pipeline_and_acceptance_tests_150_pass",
+    "credit_admin_risk_audit_and_route_probe_completed",
+    "vitest_178_pass_build_pass"
+  ],
+  "must_fix_remaining": [],
+  "build_validation": {
+    "path": "D:/WORK/tmp/auto-sticker_autogen",
+    "command": "cmd.exe /c cd /d D:\\WORK\\tmp\\auto-sticker_autogen && C:\\Progra~1\\nodejs\\node.exe C:\\Progra~1\\nodejs\\node_modules\\npm\\bin\\npm-cli.js install --no-audit --no-fund && npm run build",
+    "result": "pass",
+    "verified_at": "2026-04-28T20:28:00+08:00",
+    "notes": "build pass on Windows D drive copy; formal task path kept in /home/sport/WORK/AGENTS"
+  },
+  "webhook_deliveries": [
+    {
+      "event_type": "plan.ready",
+      "target": "sebastian-plan-ready",
+      "url": "http://127.0.0.1:8646/webhooks/sebastian-plan-ready",
+      "http_status": 202,
+      "response": {
+        "status": "accepted",
+        "route": "sebastian-plan-ready",
+        "event": "plan.ready",
+        "delivery_id": "1777383218931"
+      },
+      "sent_at": "2026-04-28T22:09:00+08:00",
+      "sent_by": "sophie_jason_patch_dispatch",
+      "purpose": "wake Sebastian to apply AUTO動態貼圖 Jason P0/P1 hardening patch"
+    }
+  ],
+  "workflow_history": [
+    {
+      "at": "2026-04-28T20:06:43+08:00",
+      "action": "apply_user_provided_character_policy",
+      "result": "patched source and pickup docs to user-uploaded-character flow"
+    },
+    {
+      "at": "2026-04-28T20:19:35+08:00",
+      "by": "sebastian",
+      "action": "bootstrap_nextjs_and_first_build_validation",
+      "result": "skeleton routes created and build validated on D drive copy"
+    },
+    {
+      "at": "2026-04-28T20:28:00+08:00",
+      "by": "sebastian",
+      "action": "implement_auth_rbac_prisma_api_batch",
+      "result": "added prisma/auth/rbac/projects APIs and revalidated build pass"
+    },
+    {
+      "at": "2026-04-28T20:49:36+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "truth_pack_schema_normalization",
+      "result": "canonicalized 02_開發中 status to in_progress and ensured lane/task_path/working_folder fields exist."
+    },
+    {
+      "at": "2026-04-28T22:05:00+08:00",
+      "by": "sophie",
+      "action": "apply_jason_review_patch_and_rename_product",
+      "reason": "Jason requested StickerForge renamed to AUTO動態貼圖 and supplied P0/P1/UI/legal hardening requirements",
+      "files": [
+        "JASON_REVIEW_PATCH_20260428.md",
+        "LINE_SPEC_SINGLE_SOURCE.md",
+        "GATED_DELIVERY_PLAN.md",
+        "EXPORT_ZIP_AND_QC_ENGINE_SPEC.md",
+        "PRISMA_SCHEMA_REQUIREMENTS.md",
+        "RBAC_PERMISSION_MATRIX.md",
+        "SECURITY_REQUIREMENTS.md",
+        "PROVIDER_ABSTRACTION_SPEC.md",
+        "MOTION_TEMPLATE_DEFINITION_SPEC.md",
+        "UI_EVIDENCE_SPEC.md",
+        "LEGAL_AND_USER_RIGHTS_SPEC.md"
+      ],
+      "result": "specs hardened; lineSpec single source/QC ZIP/RBAC/security/provider/motion/UI/legal requirements added"
+    },
+    {
+      "at": "2026-04-28T21:53:17+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "archive_active_lane_duplicates",
+      "result": "Archived Sophie/Sebastian 01 duplicates; canonical AUTO implementation remains in 02_開發中/sebastian."
+    },
+    {
+      "at": "2026-04-28T22:45:50+08:00",
+      "by": "sebastian_continuation_cron",
+      "action": "gate0_to_gate4_core_fix_and_regression_tests",
+      "result": "Patched opacityNotFull-through path (schema + QC/export routes + qc wrapper), added qcEngine regression tests (15), and verified npm run test + npm run build both pass."
+    },
+    {
+      "at": "2026-04-29T14:47:33+08:00",
+      "by": "sebastian",
+      "action": "p0_batch_db_wiring_and_regression_fixes",
+      "result": "Verified real Prisma DB wiring; fixed qc/credit/rbac/motion regressions; vitest 87/87 pass and next build pass."
+    },
+    {
+      "at": "2026-04-29T15:07:26+08:00",
+      "by": "sebastian",
+      "action": "implement_brief_motion_and_auto_degrade_pipeline",
+      "result": "Added executable brief→keyframe→motion and auto-degrade pipelines with tests; fixed regressions; vitest 150/150 pass and next build pass."
+    },
+    {
+      "at": "2026-04-29T15:17:37+08:00",
+      "by": "sebastian",
+      "action": "complete_all_must_fix_and_prepare_build_ready",
+      "result": "Completed credit/admin/risk/audit and acceptance route probes; vitest 178/178 pass and next build pass; moved to pending_review."
+    },
+    {
+      "at": "2026-04-29T15:35:11+08:00",
+      "by": "simon",
+      "action": "review.rejected",
+      "result": "returned_for_fix due truth-pack inconsistency and missing root README/Windows launch instructions; build/test/probes themselves passed in SUPAGENT evidence."
+    },
+    {
+      "at": "2026-04-29T18:47:35+08:00",
+      "by": "sebastian",
+      "action": "returned_for_fix_closure_and_resubmission_ready",
+      "result": "truth-pack synchronized, root README added, test/build/live-probe evidence revalidated"
+    },
+    {
+      "at": "2026-04-29T18:56:34+08:00",
+      "by": "simon",
+      "action": "review.done",
+      "result": "approved; prior returned_for_fix blockers cleared; tests/build/live probes pass"
+    },
+    {
+      "at": "2026-04-29T19:34:44+08:00",
+      "by": "platform_admin",
+      "action": "restore_active_release_candidate_status",
+      "result": "Simon review.done item is still under D:/WORK/成品區/待最終審核; corrected mistaken approved_archived status so Barry archive-exclusion gate will not skip it."
+    }
+  ],
+  "lane": "sebastian",
+  "task_path": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
+  "working_folder": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
+  "ops_notes": [
+    {
+      "at": "2026-04-28T20:49:36+08:00",
+      "by": "platform_admin_hourly_cron",
+      "note": "Workflow-only schema normalization: status/formal_status changed from sebastian_in_progress to canonical in_progress for 02_開發中; no app code changed."
+    },
+    {
+      "at": "2026-04-28T22:59:30+08:00",
+      "by": "platform_admin_hourly_cron",
+      "note": "Workflow-only normalization: RC.md and NEXT_STEP.md status changed from sebastian_in_progress to canonical in_progress; task remains in 02_開發中 and build.ready remains gated until remaining P0 are complete."
+    },
+    {
+      "at": "2026-04-29T08:02:11+08:00",
+      "by": "platform_admin_08_patrol",
+      "action": "supagent_stop_rule_guard_normalization",
+      "note": "Governance-only TASK_META guard: Sebastian 02_開發中 tasks require SUPAGENT for long/risky work and must not stop after one atomic step; build.ready remains gated by all P0/must-fix/build/test/route evidence."
+    }
+  ],
+  "product_name": "AUTO動態貼圖",
+  "jason_review_patch": "JASON_REVIEW_PATCH_20260428.md",
+  "outputs": [
+    "EXPORT_ZIP_AND_QC_ENGINE_SPEC.md",
+    "GATED_DELIVERY_PLAN.md",
+    "JASON_REVIEW_PATCH_20260428.md",
+    "LEGAL_AND_USER_RIGHTS_SPEC.md",
+    "LINE_SPEC_SINGLE_SOURCE.md",
+    "MOTION_TEMPLATE_DEFINITION_SPEC.md",
+    "PRISMA_SCHEMA_REQUIREMENTS.md",
+    "PROVIDER_ABSTRACTION_SPEC.md",
+    "RBAC_PERMISSION_MATRIX.md",
+    "SECURITY_REQUIREMENTS.md",
+    "UI_EVIDENCE_SPEC.md"
+  ],
+  "current_blocker": null,
+  "must_apply_jason_review_patch_before_build_ready": true,
+  "renamed_from": "StickerForge",
+  "last_dispatched_event": "plan.ready:jason_patch",
+  "source_task_archives": [
+    "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sophie_research__20260428_line_animated_sticker_autogen",
+    "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sebastian__20260428_line_animated_sticker_autogen"
+  ],
+  "supagent_required": true,
+  "must_use_supagent_for_long_or_risky_work": true,
+  "must_not_stop_after_one_step": true,
+  "developer_stop_rule": "continue_until_all_executable_P0_must_fix_build_test_route_acceptance_evidence_complete_or_concrete_BLOCKED; one atomic step is not sufficient",
+  "ready_for_build_ready": false,
+  "all_must_fix_completed": true,
+  "current_lane_path": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
+  "verdict": "approved",
+  "review_event": "review.done",
+  "reviewed_by": "simon",
+  "reviewed_at": "2026-04-29T18:56:34+08:00",
+  "lane_moved_to": "05_驗收通過/sebastian",
+  "simon_review": {
+    "event": "review.rejected",
+    "verdict": "returned_for_fix",
+    "at": "2026-04-29T15:35:11+08:00",
+    "report_path": "D:\\WORK\\成品區\\_驗收報告\\Simon\\20260428_line_animated_sticker_autogen\\20260429T153511+0800_20260428_line_animated_sticker_autogen_review.rejected.md",
+    "evidence": [
+      "SUPAGENT npm run build PASS (Next.js 15.2.4, 17/17 pages)",
+      "SUPAGENT vitest PASS (7 files, 178 tests)",
+      "SUPAGENT next start route probes responded",
+      "Simon read RC.md lines 17,44-66 and NEXT_STEP.md lines 16-36: still active remaining must-fix/no-send gate",
+      "Simon top-level listing: no root README.md / Windows launch guide"
+    ],
+    "blockers": [
+      "RC.md/NEXT_STEP.md stale/current-state contradiction blocks final approval",
+      "No root README.md or Windows-operable launch instructions at delivery root",
+      "latest_handoff.md line 9 says pending_review none while formal 03 folder exists"
+    ]
+  },
+  "ready_for_build_ready_reason": "returned_for_fix: truth pack current-state and README/Windows launch guide must be fixed before resubmission",
+  "final_package_path": null,
+  "director_last_decision": {
+    "at": "2026-04-29T18:54:36+08:00",
+    "event_type": "build.ready",
+    "decision": "blocked",
+    "blockers": [
+      "build_ready_gate_false:sebastian_supagent_used",
+      "build_ready_gate_false:product_completeness_evidence"
+    ],
+    "warnings": [
+      "lane_legacy_agent_name:sebastian"
+    ]
+  },
+  "simon_report_path_wsl": "/mnt/d/WORK/成品區/_驗收報告/Simon/20260428_line_animated_sticker_autogen/20260429T185634_0800_20260428_line_animated_sticker_autogen_review.done.md",
+  "simon_report_path_windows": "D:\\WORK\\成品區\\_驗收報告\\Simon\\20260428_line_animated_sticker_autogen\\20260429T185634_0800_20260428_line_animated_sticker_autogen_review.done.md",
+  "final_package_path_wsl": "/mnt/d/WORK/成品區/待最終審核/sebastian/20260428_line_animated_sticker_autogen",
+  "final_package_path_windows": "D:\\WORK\\成品區\\待最終審核\\sebastian\\20260428_line_animated_sticker_autogen",
+  "return_context_status": "superseded_archived",
+  "return_context_archived_path": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen/_simon_return_records/20260429T185634_0800_superseded_RETURN_CONTEXT.md",
+  "simon_acceptance_evidence": {
+    "test": "PASS node --run test / 178 tests",
+    "build": "PASS node --run build / 17 pages",
+    "live_probes": "PASS 13/13 expected status codes",
+    "README": "root README with D-drive Windows launch guide present",
+    "return_context": "superseded and archived before final package"
+  },
+  "final_review_status": "waiting_jason_final_review",
+  "release_status": "pending_barry_github_pr_preview",
+  "barry_exclude_from_actionable_release": false
+}
