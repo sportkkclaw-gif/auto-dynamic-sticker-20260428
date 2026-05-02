@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/projects/[id]
@@ -9,6 +9,10 @@ export async function GET(
 ) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json({ error: "Service temporarily unavailable. Please try again later." }, { status: 503 });
+  }
 
   const { id } = await params;
   const project = await prisma.project.findUnique({ where: { id } });
@@ -37,6 +41,10 @@ export async function PUT(
       { error: "Forbidden: USER role cannot update projects." },
       { status: 403 }
     );
+  }
+
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json({ error: "Service temporarily unavailable. Please try again later." }, { status: 503 });
   }
 
   const { id } = await params;
@@ -86,6 +94,10 @@ export async function DELETE(
       { error: "Forbidden: only ADMIN can delete projects." },
       { status: 403 }
     );
+  }
+
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json({ error: "Service temporarily unavailable. Please try again later." }, { status: 503 });
   }
 
   const { id } = await params;

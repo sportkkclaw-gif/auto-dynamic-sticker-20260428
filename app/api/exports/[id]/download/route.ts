@@ -5,7 +5,7 @@
  * Spec §D-15: Response ZIP binary or { downloadUrl: "..." }
  */
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -20,6 +20,13 @@ export async function GET(
     return NextResponse.json(
       { error: { code: "UNAUTHORIZED", message: "Authentication required." } },
       { status: 401 }
+    );
+  }
+
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: { code: "SERVICE_UNAVAILABLE", message: "Service temporarily unavailable. Please try again later." } },
+      { status: 503 }
     );
   }
 

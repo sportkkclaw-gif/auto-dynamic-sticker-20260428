@@ -2,15 +2,15 @@
   "schema_version": "truth-pack.v1",
   "task_id": "20260428_line_animated_sticker_autogen",
   "title": "AUTO動態貼圖 開發案",
-  "status": "approved",
-  "formal_status": "approved",
+  "status": "returned_for_fix",
+  "formal_status": "returned_for_fix",
   "current_lane": "04_打回修改/sebastian",
   "source_task_path": "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sophie_research__20260428_line_animated_sticker_autogen",
-  "next_agent": null,
+  "next_agent": "sebastian",
   "next_event": null,
-  "internal_next_action": "await_simon_review_done_for_resubmitted_build_ready",
+  "internal_next_action": "provision_vercel_cli_and_token_then_redeploy_preview_and_rerun_login_authenticated_probe",
   "created_at": "2026-04-28T19:59:42+08:00",
-  "updated_at": "2026-05-01T20:43:34+08:00",
+  "updated_at": "2026-05-02T14:09:06+08:00",
   "product_mode": "web_first",
   "required_entry": "SEBASTIAN_START_PROMPT.md",
   "user_correction": "user_provided_character_images_only; app transforms/animates uploaded characters; no platform text-to-character main flow",
@@ -252,6 +252,48 @@
       "event": "review.done",
       "verdict": "APPROVED",
       "report": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md"
+    },
+    {
+      "at": "2026-05-01T20:55:00+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "post_simon_cloud_preview_regression_returned_for_fix",
+      "result": "Simon APPROVED local package, GitHub branch refreshed and Vercel Preview deployed, but live cloud POST /api/auth/login returned HTTP 500; revoked Jason-ready status and kept task in 04_打回修改. Public routes and unauth guards probed as expected; authenticated demo credentials cannot be reported until DB/auth backend is provisioned."
+    },
+    {
+      "at": "2026-05-02T08:38:00+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "truth_pack_canonicalize_after_cloud_preview_revocation",
+      "result": "Governance-only repair: RC/NEXT/TASK_META now consistently say returned_for_fix in 04 after Simon APPROVED was superseded by cloud Preview auth 500. No app code changed."
+    },
+    {
+      "at": "2026-05-02T09:50:33+08:00",
+      "by": "sebastian-op",
+      "action": "harden_remaining_authenticated_routes_no_db_503_and_controller_reverify",
+      "result": "Added DB-unavailable guards for remaining authenticated API routes; controller canonical node --run test PASS(181) and node --run build PASS(25 routes); awaiting cloud live re-probe evidence."
+    },
+    {
+      "at": "2026-05-02T10:36:01+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_timeout_then_controller_cloud_probe",
+      "result": "delegate_task timed out at 600s; controller probe confirmed cloud login still HTTP 500 and /api/projects remains 401 without cookie."
+    },
+    {
+      "at": "2026-05-02T11:16:54+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_fix_and_controller_reverify_then_cloud_probe",
+      "result": "SUPAGENT added no-DB auth regression tests; controller re-ran node --run test (193 PASS) and node --run build (PASS). Cloud live probe still returns login 500; redeploy blocked because vercel CLI missing and VERCEL_TOKEN/VERCEL_API_TOKEN unset."
+    },
+    {
+      "at": "2026-05-02T13:33:00+08:00",
+      "by": "hermes-agent",
+      "action": "truth_pack_audit_update",
+      "result": "Updated timestamps to 2026-05-02T13:33:00+08:00; current_blocker recorded as 'vercel cli missing; VERCEL_TOKEN and VERCEL_API_TOKEN absent'; no status change — returned_for_fix/ready_for_build_ready=false/all_must_fix_completed=false unchanged."
+    },
+    {
+      "at": "2026-05-02T14:09:06+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_audit_and_controller_blocker_recheck",
+      "result": "SUPAGENT and controller both confirmed vercel/npm/npx unavailable and VERCEL_TOKEN/VERCEL_API_TOKEN absent; blocker unchanged, redeploy still not executable."
     }
   ],
   "lane": "sebastian",
@@ -281,7 +323,7 @@
     "latest_simon_review_report": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md",
     "simon_approved_at": "2026-05-01T20:43:34+08:00"
   },
-  "current_blocker": null,
+  "current_blocker": "vercel cli missing; VERCEL_TOKEN and VERCEL_API_TOKEN absent",
   "must_apply_jason_review_patch_before_build_ready": true,
   "renamed_from": "StickerForge",
   "last_dispatched_event": "build.ready",
@@ -293,8 +335,8 @@
   "must_use_supagent_for_long_or_risky_work": true,
   "must_not_stop_after_one_step": true,
   "developer_stop_rule": "continue_until_all_executable_P0_must_fix_build_test_route_acceptance_evidence_complete_or_concrete_BLOCKED; one atomic step is not sufficient",
-  "ready_for_build_ready": true,
-  "all_must_fix_completed": true,
+  "ready_for_build_ready": false,
+  "all_must_fix_completed": false,
   "current_lane_path": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen",
   "verdict": "pending_review",
   "review_event": "review.done",
@@ -346,10 +388,10 @@
     "README": "root README with D-drive Windows launch guide present",
     "return_context": "superseded and archived before final package"
   },
-  "final_review_status": "pending_simon_review",
-  "release_status": "pending_review_not_published",
-  "barry_exclude_from_actionable_release": false,
-  "cloud_preview_status": "ready",
+  "final_review_status": "revoked_returned_for_fix_cloud_preview_auth_500",
+  "release_status": "blocked_cloud_preview_auth_500_do_not_publish_or_list_as_jason_ready",
+  "barry_exclude_from_actionable_release": true,
+  "cloud_preview_status": "partial_degraded",
   "repo_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428",
   "pr_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428/pull/1",
   "preview_url": "https://auto-dynamic-sticker-20260428-mtswt7v96.vercel.app",
@@ -378,7 +420,7 @@
       "/api/health": 200
     }
   },
-  "barry_exclude_reason": "Jason reported this accepted item was already rejected and requested downlisting on 2026-04-30.",
+  "barry_exclude_reason": "Post-Simon cloud probe found authenticated login API HTTP 500 on refreshed Vercel Preview; D final-review pack moved to _退回修改 until fixed.",
   "must_not_show_to_user_until_full_product_ready": true,
   "returned_by_user_at": "2026-04-30T20:58:17+08:00",
   "last_dispatched_at": "2026-05-01T19:52:54+08:00",
@@ -401,5 +443,10 @@
     }
   ],
   "remaining_p0_count": 0,
-  "latest_review": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md"
+  "latest_review": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md",
+  "latest_simon_verdict": "APPROVED",
+  "simon_approved_at": "2026-05-01T20:43:34+08:00",
+  "cloud_preview_blocker": "2026-05-02T11:44:25+08:00 local no-DB authenticated API matrix expanded and all covered routes are non-500 (200 demo or 503), but cloud preview still blocked by unresolved redeploy capability: vercel CLI missing and VERCEL_TOKEN/VERCEL_API_TOKEN unset; latest cloud probe remains POST /api/auth/login=500 and /api/projects=401 without cookie.",
+  "ready_for_jason_final_review": false,
+  "qc_handoff_blocked": true
 }
