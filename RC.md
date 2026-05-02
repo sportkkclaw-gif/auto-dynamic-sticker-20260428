@@ -1,48 +1,29 @@
 # RC — AUTO動態貼圖
 
-updated_at: 2026-04-29T18:56:34+08:00
-status: approved_archived
-review_event: review.done
+updated_at: 2026-05-02T14:09:06+08:00
+status: returned_for_fix
+formal_status: returned_for_fix
 next_event: null
-current_lane: 05_驗收通過/sebastian
+next_agent: sebastian
+current_lane: 04_打回修改/sebastian
 
-## 本輪修復（針對 Simon 退件）
-1. truth pack current-state 矛盾已清除（RC/NEXT_STEP/TASK_META 同步）。
-2. 補上專案根目錄 `README.md`，含 Windows（D:\WORK）可執行啟動/驗收指引。
-3. 重新驗證 build/test/live route probes 並回填證據。
+## Controller verification — 2026-05-02T11:16:54+08:00
+- SUPAGENT-first 修復與測試完成；controller canonical 重跑：`node --run test` **193/193 PASS**、`node --run build` **PASS (25 routes)**。
+- SUPAGENT cloud live probe：`POST /api/auth/login`（admin@demo.local/admin123）仍 **500**、無 cookie；`GET /api/projects`（with/without cookie）皆 **401**。
+- redeploy 能力檢查：`which vercel` 無輸出；`VERCEL_TOKEN=0`、`VERCEL_API_TOKEN=0`（環境未注入）。
 
-## 驗證證據
-- `node --run test` → PASS（7 files / 178 tests）
-- `node --run build` → PASS（Next.js 15.2.4；17/17 pages）
-- `PORT=3010 node --run start` + route probes：
-  - 200：`/` `/dashboard` `/projects` `/qc` `/admin` `/api/health`
-  - 405：`/api/auth/login`（GET method guard）
-  - 401：`/api/projects` `/api/qc` `/api/export` `/api/credits` `/api/risk-rules` `/api/audit`（auth guard）
+## Controller no-DB coverage verification — 2026-05-02T11:44:25+08:00
+- 以 `DATABASE_URL=file:/no-such-path/dev.db` + `PORT=3114 node --run start` 進行 login→authenticated probes。
+- 已覆蓋並確認「不回 500」：
+  - `GET /api/projects`=200（demo）
+  - `GET /api/projects/[id]`/`qc-report`/`briefs/generate`/`exports/[id]/download`/`stickers/[id]/animate`/`stickers/[id]/keyframes/generate`=503
+  - `POST /api/projects/[id]/character-lock`、`PUT /api/briefs/[id]`、`POST /api/stickers/[id]/qc`=503
+  - 先前已驗證 `credits/audit/export/qc/motion-templates/risk-rules` 皆為 200-demo 或 503。
+- 另外以掃描檢查：所有含 Prisma 查詢的 `app/api/**/route.ts` 均已存在 `isDatabaseAvailable` guard。
 
-## 結論
-- 退件要求已完成；可送 Simon 驗收。
+## Current blocker
+- vercel cli missing; VERCEL_TOKEN and VERCEL_API_TOKEN absent; redeploy cannot be triggered; cloud login remains 500 until redeploy.
 
-
-## Simon 驗收紀錄 — 2026-04-29T18:56:34+08:00
-
-- verdict: approved
-- review_event: review.done
-- report: `D:\WORK\成品區\_驗收報告\Simon\20260428_line_animated_sticker_autogen\20260429T185634_0800_20260428_line_animated_sticker_autogen_review.done.md`
-- final_package: `D:\WORK\成品區\待最終審核\sebastian\20260428_line_animated_sticker_autogen`
-
-### Evidence
-- 前次 returned_for_fix must-fix 已清除：truth pack 同步、root README/D槽啟動指引存在、build/test/live probes 重驗證。
-- Test PASS：7 files / 178 tests。
-- Build PASS：Next.js 15.2.4 / 17 pages。
-- Live probes PASS：Web/health 200；login method guard 405；protected API unauth 401。
-- RETURN_CONTEXT 已封存：`_simon_return_records/20260429T185634_0800_superseded_RETURN_CONTEXT.md`。
-
-### 狀態流轉
-| 時間 | 事件 | 位置 | 負責人 |
-|---|---|---|---|
-| 2026-04-29T18:56:34+08:00 | review.done / approved | 05_驗收通過/sebastian/20260428_line_animated_sticker_autogen | Simon |
-
-
-## Platform Admin Release Candidate Status Fix — 2026-04-29T19:34:44+08:00
-- Corrected mistaken `approved_archived` metadata to `approved` / `waiting_jason_final_review` because the package remains in `D:\WORK\成品區\待最終審核` and Simon review.done is valid.
-- Barry GitHub auth was synced into profile-local HOME; release flow should continue with GitHub repo/PR/Preview publishing.
+## Controller blocker recheck — 2026-05-02T14:09:06+08:00
+- SUPAGENT audit + controller canonical recheck: `vercel/npm/npx` not found; env-key checks `VERCEL_TOKEN=false`, `VERCEL_API_TOKEN=false`.
+- Blocker unchanged: cannot redeploy preview; cloud login 500 issue remains unresolved until CLI+token are provisioned.

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+// ─── Demo fallback data (used when DB is unavailable) ─────────────────────────
+
+const DEMO_PROJECTS_ADMIN = [
+  { id: "proj_demo_01", title: "Demo Project Alpha", description: "Sample project for preview", status: "DRAFT", userId: "user_admin_01", createdAt: new Date("2026-01-15T10:00:00Z"), updatedAt: new Date("2026-01-15T10:00:00Z") },
+  { id: "proj_demo_02", title: "Demo Project Beta", description: "Another sample", status: "IN_PROGRESS", userId: "user_admin_01", createdAt: new Date("2026-02-01T10:00:00Z"), updatedAt: new Date("2026-02-01T10:00:00Z") },
+];
+
+const DEMO_PROJECTS_USER = [
+  { id: "proj_demo_01", title: "Demo Project Alpha", description: "Sample project for preview", status: "DRAFT", userId: "user_admin_01", createdAt: new Date("2026-01-15T10:00:00Z"), updatedAt: new Date("2026-01-15T10:00:00Z") },
+];
 
 // GET /api/projects
 export async function GET(request: NextRequest) {
@@ -9,15 +20,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const projects =
-    user.role === "ADMIN"
-      ? await prisma.project.findMany({ orderBy: { createdAt: "desc" } })
-      : await prisma.project.findMany({
-          where: { userId: user.id },
-          orderBy: { createdAt: "desc" },
-        });
+  // ── DB path ──────────────────────────────────────────────────────────────────
+  if (await isDatabaseAvailable()) {
+    try {
+      const projects =
+        user.role === "ADMIN"
+          ? await prisma.project.findMany({ orderBy: { createdAt: "desc" } })
+          : await prisma.project.findMany({
+              where: { userId: user.id },
+              orderBy: { createdAt: "desc" },
+            });
+      return NextResponse.json({ projects }, { status: 200 });
+    } catch (err) {
+      console.error("[GET /api/projects] DB query failed:", err instanceof Error ? err.message : String(err));
+      // Fall through to demo fallback below
+    }
+  }
 
-  return NextResponse.json({ projects }, { status: 200 });
+  // ── Demo fallback (DB unavailable) ─────────────────────────────────────────
+  console.warn("[GET /api/projects] DB unavailable — returning demo dataset");
+  const projects = user.role === "ADMIN" ? DEMO_PROJECTS_ADMIN : DEMO_PROJECTS_USER;
+  return NextResponse.json({ projects, _demo: true }, { status: 200 });
 }
 
 // POST /api/projects
@@ -31,6 +54,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Forbidden: USER role cannot create projects." },
       { status: 403 }
+    );
+  }
+
+  // DB must be available for write operations
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot create project in preview mode." },
+      { status: 503 }
     );
   }
 

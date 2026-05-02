@@ -5,8 +5,37 @@
  * POST/PUT require admin:template:write permission (ADMIN only).
  */
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+// ─── Demo fallback data (used when DB is unavailable) ─────────────────────────
+
+const DEMO_TEMPLATES = [
+  {
+    id: "tpl_demo_01",
+    teamId: "team_demo",
+    code: "bounce",
+    name: "Bounce",
+    description: "Simple bounce loop",
+    definition: JSON.stringify({ targets: ["body"], keyframes: [{ time: 0, tx: 0, ty: 0 }, { time: 30, tx: 0, ty: -10 }, { time: 60, tx: 0, ty: 0 }], parameters: { loop: true } }),
+    riskLevel: "stable",
+    enabled: true,
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+  },
+  {
+    id: "tpl_demo_02",
+    teamId: "team_demo",
+    code: "shake",
+    name: "Shake",
+    description: "Horizontal shake",
+    definition: JSON.stringify({ targets: ["body"], keyframes: [{ time: 0, tx: 0, ty: 0 }, { time: 15, tx: 5, ty: 0 }, { time: 30, tx: -5, ty: 0 }, { time: 45, tx: 0, ty: 0 }], parameters: { loop: true } }),
+    riskLevel: "stable",
+    enabled: true,
+    createdAt: new Date("2026-01-01T00:00:00Z"),
+    updatedAt: new Date("2026-01-01T00:00:00Z"),
+  },
+];
 
 export const runtime = "nodejs";
 
@@ -18,26 +47,37 @@ export async function GET(request: NextRequest) {
   const teamId = request.nextUrl.searchParams.get("teamId");
   if (!teamId) return NextResponse.json({ error: "teamId required" }, { status: 400 });
 
-  // Verify team membership
-  const membership = await prisma.teamMembership.findUnique({
-    where: { teamId_userId: { teamId, userId: user.id } },
-  });
-  if (!membership && user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // Verify team membership (skip if DB unavailable)
+  if (await isDatabaseAvailable()) {
+    try {
+      const membership = await prisma.teamMembership.findUnique({
+        where: { teamId_userId: { teamId, userId: user.id } },
+      });
+      if (!membership && user.role !== "ADMIN") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+
+      const templates = await prisma.motionTemplate.findMany({
+        where: { teamId, enabled: true },
+        orderBy: { code: "asc" },
+      });
+
+      const result = templates.map((t) => ({
+        ...t,
+        definition: JSON.parse(t.definition as string),
+      }));
+
+      return NextResponse.json({ templates: result }, { status: 200 });
+    } catch (err) {
+      console.error("[GET /api/motion-templates] DB error:", err instanceof Error ? err.message : String(err));
+      // fall through to demo fallback
+    }
   }
 
-  const templates = await prisma.motionTemplate.findMany({
-    where: { teamId, enabled: true },
-    orderBy: { code: "asc" },
-  });
-
-  // Deserialize definition JSON
-  const result = templates.map((t) => ({
-    ...t,
-    definition: JSON.parse(t.definition as string),
-  }));
-
-  return NextResponse.json({ templates: result }, { status: 200 });
+  // ── Demo fallback (DB unavailable) ─────────────────────────────────────────
+  console.warn("[GET /api/motion-templates] DB unavailable — returning demo templates");
+  const result = DEMO_TEMPLATES.map((t) => ({ ...t, definition: JSON.parse(t.definition as string) }));
+  return NextResponse.json({ templates: result, _demo: true }, { status: 200 });
 }
 
 // POST /api/motion-templates — create a new motion template (ADMIN only)
@@ -49,6 +89,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Forbidden: admin role required to create motion templates." },
       { status: 403 }
+    );
+  }
+
+  // DB must be available for write operations
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot create motion template in preview mode." },
+      { status: 503 }
     );
   }
 
@@ -109,6 +157,14 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(
       { error: "Forbidden: admin role required to update motion templates." },
       { status: 403 }
+    );
+  }
+
+  // DB must be available for write operations
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot update motion template in preview mode." },
+      { status: 503 }
     );
   }
 

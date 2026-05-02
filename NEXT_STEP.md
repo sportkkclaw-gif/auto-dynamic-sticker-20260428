@@ -1,14 +1,16 @@
 # NEXT_STEP — AUTO動態貼圖
 
-updated_at: 2026-04-29T18:56:34+08:00
-status: approved_archived
-review_event: review.done
+updated_at: 2026-05-02T14:09:06+08:00
+status: returned_for_fix
+formal_status: returned_for_fix
 next_event: null
-next_agent: user
-formal_path: /home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen
-final_package: D:\WORK\成品區\待最終審核\sebastian\20260428_line_animated_sticker_autogen
-report: D:\WORK\成品區\_驗收報告\Simon\20260428_line_animated_sticker_autogen\20260429T185634_0800_20260428_line_animated_sticker_autogen_review.done.md
+next_agent: sebastian
+
+## 已完成
+- SUPAGENT-first 修復完成並新增 no-DB auth 測試；controller canonical `node --run test`=193 PASS、`node --run build`=PASS。
+- SUPAGENT cloud live probe 已重跑：login 仍 500（無 cookie），/api/projects with/without cookie 皆 401。
 
 ## 下一步
-- Sebastian 無剩餘修復動作。
-- 等待使用者從 D 槽最終審核入口實際檢視。
+- 先補齊 Vercel redeploy 能力（CLI + `VERCEL_TOKEN` 或 `VERCEL_API_TOKEN`），再以 SUPAGENT 觸發 preview redeploy。
+- redeploy 後重跑 login→authenticated API probe；login 不得 500 且需有 cookie。
+- 以同一組 cookie 重探針 `/api/projects`、`/api/credits`、`/api/audit`、`/api/export`（至少四條）確認雲端端點行為與本地 no-DB 結果一致，再決定是否送 `build.ready`。

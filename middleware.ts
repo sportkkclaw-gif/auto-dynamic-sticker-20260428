@@ -3,7 +3,9 @@ import type { NextRequest } from "next/server";
 import { getCurrentUser, type Role } from "@/lib/auth";
 
 export const config = {
-  matcher: ["/api/projects/:path*"],
+  matcher: [
+    "/api/:path*",
+  ],
 };
 
 // ─── RBAC helper ──────────────────────────────────────────────────────────────
@@ -38,11 +40,19 @@ export async function middleware(request: NextRequest) {
   }
 
   // ── Auth-gated paths ──────────────────────────────────────────────────────
+  // getCurrentUser reads auth_token cookie; returns null if missing/invalid
   const user = await getCurrentUser();
 
   if (!user) {
+    // If the Accept header is text/html (browser navigation), redirect to login.
+    // Otherwise return 401 JSON — this handles both AJAX/API calls and
+    // browser page navigations correctly.
+    const accept = request.headers.get("accept") ?? "";
+    if (accept.includes("text/html")) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
     return NextResponse.json(
-      { error: "Unauthorized. Please log in." },
+      { error: { code: "UNAUTHORIZED", message: "Please log in to continue." } },
       { status: 401 }
     );
   }

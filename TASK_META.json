@@ -2,15 +2,15 @@
   "schema_version": "truth-pack.v1",
   "task_id": "20260428_line_animated_sticker_autogen",
   "title": "AUTO動態貼圖 開發案",
-  "status": "approved",
-  "formal_status": "approved",
-  "current_lane": "05_驗收通過/sebastian",
+  "status": "returned_for_fix",
+  "formal_status": "returned_for_fix",
+  "current_lane": "04_打回修改/sebastian",
   "source_task_path": "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sophie_research__20260428_line_animated_sticker_autogen",
-  "next_agent": "user",
+  "next_agent": "sebastian",
   "next_event": null,
-  "internal_next_action": "await_simon_review",
+  "internal_next_action": "provision_vercel_cli_and_token_then_redeploy_preview_and_rerun_login_authenticated_probe",
   "created_at": "2026-04-28T19:59:42+08:00",
-  "updated_at": "2026-04-29T18:56:34+08:00",
+  "updated_at": "2026-05-02T14:09:06+08:00",
   "product_mode": "web_first",
   "required_entry": "SEBASTIAN_START_PROMPT.md",
   "user_correction": "user_provided_character_images_only; app transforms/animates uploaded characters; no platform text-to-character main flow",
@@ -54,6 +54,38 @@
       "sent_at": "2026-04-28T22:09:00+08:00",
       "sent_by": "sophie_jason_patch_dispatch",
       "purpose": "wake Sebastian to apply AUTO動態貼圖 Jason P0/P1 hardening patch"
+    },
+    {
+      "event_type": "build.ready",
+      "target": "simon-build-ready",
+      "url": "http://127.0.0.1:8647/webhooks/simon-build-ready",
+      "http_status": 202,
+      "response": {
+        "status": "accepted",
+        "route": "simon-build-ready",
+        "event": "build.ready",
+        "delivery_id": "1777630724761"
+      },
+      "delivery_id": "1777630724761",
+      "sent_at": "2026-05-01T18:18:44+08:00",
+      "sent_by": "sebastian",
+      "notes": "recompletion dispatch after 18 pages + 18 apis closure"
+    },
+    {
+      "event_type": "build.ready",
+      "target": "simon-build-ready",
+      "url": "http://127.0.0.1:8647/webhooks/simon-build-ready",
+      "http_status": 202,
+      "response": {
+        "status": "accepted",
+        "route": "simon-build-ready",
+        "event": "build.ready",
+        "delivery_id": "1777636401464"
+      },
+      "delivery_id": "1777636401464",
+      "sent_at": "2026-05-01T19:52:54+08:00",
+      "sent_by": "sebastian",
+      "notes": "resubmission after fixing Simon rejected blockers"
     }
   ],
   "workflow_history": [
@@ -153,11 +185,120 @@
       "by": "platform_admin",
       "action": "restore_active_release_candidate_status",
       "result": "Simon review.done item is still under D:/WORK/成品區/待最終審核; corrected mistaken approved_archived status so Barry archive-exclusion gate will not skip it."
+    },
+    {
+      "at": "2026-04-29T20:13:24+08:00",
+      "by": "platform_admin_for_barry",
+      "action": "publish_github_pr_and_vercel_preview",
+      "result": "GitHub repo/PR created; Next.js upgraded from 15.2.4 to 15.5.15 to satisfy Vercel security gate; Vercel Preview deployed and public routes verified HTTP 200.",
+      "repo_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428",
+      "pr_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428/pull/1",
+      "preview_url": "https://auto-dynamic-sticker-20260428-mtswt7v96.vercel.app",
+      "verified_routes": {
+        "/": 200,
+        "/dashboard": 200,
+        "/projects": 200,
+        "/qc": 200,
+        "/admin": 200,
+        "/api/health": 200
+      }
+    },
+    {
+      "at": "2026-04-30T20:58:17+08:00",
+      "by": "Hermes系統管理員",
+      "action": "user_final_review_rejected_downlisted",
+      "summary": "Jason stated this item had already been rejected and requested downlisting; moved formal folder from 05_驗收通過 to 04_打回修改, removed from active final review/release lists, quarantined D-drive review pack."
+    },
+    {
+      "at": "2026-05-01T18:13:53+08:00",
+      "by": "sebastian",
+      "action": "recomplete_to_spec_18pages_18apis_and_reopen_for_review",
+      "result": "implemented missing 17 pages + 8 APIs; controller build/test/probes pass; gate switched to pending_review build.ready"
+    },
+    {
+      "at": "2026-05-01T18:29:37+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "lane_reconcile_pending_review_from_04_to_03",
+      "result": "Governance-only repair: task was pending_review/build.ready in 04_打回修改 and Simon webhook drifted to ShiftOps; moved canonical folder to 03_待驗收, restored legal build.ready event, and instructed Simon to review this task path."
+    },
+    {
+      "at": "2026-05-01T18:34:32+08:00",
+      "by": "simon",
+      "event": "review.rejected",
+      "report": "/home/sport/WORK/AGENTS/03_待驗收/sebastian/20260428_line_animated_sticker_autogen/_simon_return_records/20260501T183432_+0800_20260428_line_animated_sticker_autogen_review.rejected.md",
+      "responsibility": "OP_DELIVERY_DEFECT"
+    },
+    {
+      "at": "2026-05-01T18:37:43+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "post_simon_rejection_path_reconciliation",
+      "result": "Simon rejected AUTO and returned folder to 04; repaired stale task_path/working_folder that still pointed to 03. No app code changed."
+    },
+    {
+      "at": "2026-05-01T19:42:30+08:00",
+      "by": "sebastian-op",
+      "action": "controller_canonical_reverify_and_d_package_freshness",
+      "result": "node --run test PASS(181), node --run build PASS(25 pages), login cookie -> /api/projects 200, ensured source+D package include required public/ directory"
+    },
+    {
+      "at": "2026-05-01T19:52:54+08:00",
+      "by": "sebastian",
+      "action": "resubmit_build_ready_after_blocker_fixes",
+      "result": "test/build/live/auth/d-package gates pass; dispatched build.ready accepted"
+    },
+    {
+      "at": "2026-05-01T20:43:34+08:00",
+      "agent": "simon",
+      "event": "review.done",
+      "verdict": "APPROVED",
+      "report": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md"
+    },
+    {
+      "at": "2026-05-01T20:55:00+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "post_simon_cloud_preview_regression_returned_for_fix",
+      "result": "Simon APPROVED local package, GitHub branch refreshed and Vercel Preview deployed, but live cloud POST /api/auth/login returned HTTP 500; revoked Jason-ready status and kept task in 04_打回修改. Public routes and unauth guards probed as expected; authenticated demo credentials cannot be reported until DB/auth backend is provisioned."
+    },
+    {
+      "at": "2026-05-02T08:38:00+08:00",
+      "by": "platform_admin_hourly_cron",
+      "action": "truth_pack_canonicalize_after_cloud_preview_revocation",
+      "result": "Governance-only repair: RC/NEXT/TASK_META now consistently say returned_for_fix in 04 after Simon APPROVED was superseded by cloud Preview auth 500. No app code changed."
+    },
+    {
+      "at": "2026-05-02T09:50:33+08:00",
+      "by": "sebastian-op",
+      "action": "harden_remaining_authenticated_routes_no_db_503_and_controller_reverify",
+      "result": "Added DB-unavailable guards for remaining authenticated API routes; controller canonical node --run test PASS(181) and node --run build PASS(25 routes); awaiting cloud live re-probe evidence."
+    },
+    {
+      "at": "2026-05-02T10:36:01+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_timeout_then_controller_cloud_probe",
+      "result": "delegate_task timed out at 600s; controller probe confirmed cloud login still HTTP 500 and /api/projects remains 401 without cookie."
+    },
+    {
+      "at": "2026-05-02T11:16:54+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_fix_and_controller_reverify_then_cloud_probe",
+      "result": "SUPAGENT added no-DB auth regression tests; controller re-ran node --run test (193 PASS) and node --run build (PASS). Cloud live probe still returns login 500; redeploy blocked because vercel CLI missing and VERCEL_TOKEN/VERCEL_API_TOKEN unset."
+    },
+    {
+      "at": "2026-05-02T13:33:00+08:00",
+      "by": "hermes-agent",
+      "action": "truth_pack_audit_update",
+      "result": "Updated timestamps to 2026-05-02T13:33:00+08:00; current_blocker recorded as 'vercel cli missing; VERCEL_TOKEN and VERCEL_API_TOKEN absent'; no status change — returned_for_fix/ready_for_build_ready=false/all_must_fix_completed=false unchanged."
+    },
+    {
+      "at": "2026-05-02T14:09:06+08:00",
+      "by": "sebastian-op",
+      "action": "supagent_audit_and_controller_blocker_recheck",
+      "result": "SUPAGENT and controller both confirmed vercel/npm/npx unavailable and VERCEL_TOKEN/VERCEL_API_TOKEN absent; blocker unchanged, redeploy still not executable."
     }
   ],
   "lane": "sebastian",
-  "task_path": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
-  "working_folder": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
+  "task_path": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen",
+  "working_folder": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen",
   "ops_notes": [
     {
       "at": "2026-04-28T20:49:36+08:00",
@@ -178,23 +319,14 @@
   ],
   "product_name": "AUTO動態貼圖",
   "jason_review_patch": "JASON_REVIEW_PATCH_20260428.md",
-  "outputs": [
-    "EXPORT_ZIP_AND_QC_ENGINE_SPEC.md",
-    "GATED_DELIVERY_PLAN.md",
-    "JASON_REVIEW_PATCH_20260428.md",
-    "LEGAL_AND_USER_RIGHTS_SPEC.md",
-    "LINE_SPEC_SINGLE_SOURCE.md",
-    "MOTION_TEMPLATE_DEFINITION_SPEC.md",
-    "PRISMA_SCHEMA_REQUIREMENTS.md",
-    "PROVIDER_ABSTRACTION_SPEC.md",
-    "RBAC_PERMISSION_MATRIX.md",
-    "SECURITY_REQUIREMENTS.md",
-    "UI_EVIDENCE_SPEC.md"
-  ],
-  "current_blocker": null,
+  "outputs": {
+    "latest_simon_review_report": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md",
+    "simon_approved_at": "2026-05-01T20:43:34+08:00"
+  },
+  "current_blocker": "vercel cli missing; VERCEL_TOKEN and VERCEL_API_TOKEN absent",
   "must_apply_jason_review_patch_before_build_ready": true,
   "renamed_from": "StickerForge",
-  "last_dispatched_event": "plan.ready:jason_patch",
+  "last_dispatched_event": "build.ready",
   "source_task_archives": [
     "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sophie_research__20260428_line_animated_sticker_autogen",
     "/home/sport/WORK/AGENTS/00_系統設定/reports/workflow_repair_backups/20260428_215317/sebastian__20260428_line_animated_sticker_autogen"
@@ -204,13 +336,13 @@
   "must_not_stop_after_one_step": true,
   "developer_stop_rule": "continue_until_all_executable_P0_must_fix_build_test_route_acceptance_evidence_complete_or_concrete_BLOCKED; one atomic step is not sufficient",
   "ready_for_build_ready": false,
-  "all_must_fix_completed": true,
-  "current_lane_path": "/home/sport/WORK/AGENTS/05_驗收通過/sebastian/20260428_line_animated_sticker_autogen",
-  "verdict": "approved",
+  "all_must_fix_completed": false,
+  "current_lane_path": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen",
+  "verdict": "pending_review",
   "review_event": "review.done",
-  "reviewed_by": "simon",
-  "reviewed_at": "2026-04-29T18:56:34+08:00",
-  "lane_moved_to": "05_驗收通過/sebastian",
+  "reviewed_by": null,
+  "reviewed_at": null,
+  "lane_moved_to": "04_打回修改/sebastian",
   "simon_review": {
     "event": "review.rejected",
     "verdict": "returned_for_fix",
@@ -229,7 +361,7 @@
       "latest_handoff.md line 9 says pending_review none while formal 03 folder exists"
     ]
   },
-  "ready_for_build_ready_reason": "returned_for_fix: truth pack current-state and README/Windows launch guide must be fixed before resubmission",
+  "ready_for_build_ready_reason": "all checklist items completed and controller canonical build/test/probe revalidated on 2026-05-01",
   "final_package_path": null,
   "director_last_decision": {
     "at": "2026-04-29T18:54:36+08:00",
@@ -256,7 +388,65 @@
     "README": "root README with D-drive Windows launch guide present",
     "return_context": "superseded and archived before final package"
   },
-  "final_review_status": "waiting_jason_final_review",
-  "release_status": "pending_barry_github_pr_preview",
-  "barry_exclude_from_actionable_release": false
+  "final_review_status": "revoked_returned_for_fix_cloud_preview_auth_500",
+  "release_status": "blocked_cloud_preview_auth_500_do_not_publish_or_list_as_jason_ready",
+  "barry_exclude_from_actionable_release": true,
+  "cloud_preview_status": "partial_degraded",
+  "repo_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428",
+  "pr_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428/pull/1",
+  "preview_url": "https://auto-dynamic-sticker-20260428-mtswt7v96.vercel.app",
+  "github": {
+    "status": "published_for_acceptance",
+    "repo_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428",
+    "pr_url": "https://github.com/sportkkclaw-gif/auto-dynamic-sticker-20260428/pull/1",
+    "branch": "acceptance/20260428_line_animated_sticker_autogen",
+    "commit": "f49e1e2453cb62de91e8ee11b12cfdf03ecd5959",
+    "published_at": "2026-04-29T20:13:24+08:00",
+    "owner": "sportkkclaw-gif",
+    "repo": "auto-dynamic-sticker-20260428"
+  },
+  "vercel": {
+    "status": "preview_ready",
+    "project": "auto-dynamic-sticker-20260428",
+    "preview_url": "https://auto-dynamic-sticker-20260428-mtswt7v96.vercel.app",
+    "protection": "disabled_sso_and_password_for_jason_review",
+    "verified_at": "2026-04-29T20:13:24+08:00",
+    "verified_routes": {
+      "/": 200,
+      "/dashboard": 200,
+      "/projects": 200,
+      "/qc": 200,
+      "/admin": 200,
+      "/api/health": 200
+    }
+  },
+  "barry_exclude_reason": "Post-Simon cloud probe found authenticated login API HTTP 500 on refreshed Vercel Preview; D final-review pack moved to _退回修改 until fixed.",
+  "must_not_show_to_user_until_full_product_ready": true,
+  "returned_by_user_at": "2026-04-30T20:58:17+08:00",
+  "last_dispatched_at": "2026-05-01T19:52:54+08:00",
+  "qc_last_decision": "APPROVED",
+  "simon_fixes_applied": [
+    {
+      "at": "2026-05-01T19:30:00+08:00",
+      "blocker": "PRODUCT_SPEC.md/TEST_RESULT.md formal gate missing",
+      "fix": "Created PRODUCT_SPEC.md (18 pages + 18 APIs spec mapping, test/build/live results, auth fix record) and updated TEST_RESULT.md (181 tests pass, build pass, live route probe complete, auth flow verified)"
+    },
+    {
+      "at": "2026-05-01T19:30:00+08:00",
+      "blocker": "local production auth cookie protected API 401",
+      "fix": "Expanded middleware config.matcher from /api/projects/:path* to /api/:path*; unified 401 response with error.code UNAUTHORIZED; browser navigation redirects to /login; cookie Secure flag auto-detects HTTP vs HTTPS"
+    },
+    {
+      "at": "2026-05-01T19:30:00+08:00",
+      "blocker": "D final-review package missing",
+      "fix": "Created /mnt/d/WORK/成品區/待最終審核/sebastian/20260428_line_animated_sticker_autogen with full truth-pack (RC.md, NEXT_STEP.md, TASK_META.json, PRODUCT_SPEC.md, TEST_RESULT.md, README.md) + app/, lib/, prisma/, .next/"
+    }
+  ],
+  "remaining_p0_count": 0,
+  "latest_review": "/home/sport/WORK/AGENTS/04_打回修改/sebastian/20260428_line_animated_sticker_autogen/_simon_review_records/2026-05-01T204334_0800_APPROVED.md",
+  "latest_simon_verdict": "APPROVED",
+  "simon_approved_at": "2026-05-01T20:43:34+08:00",
+  "cloud_preview_blocker": "2026-05-02T11:44:25+08:00 local no-DB authenticated API matrix expanded and all covered routes are non-500 (200 demo or 503), but cloud preview still blocked by unresolved redeploy capability: vercel CLI missing and VERCEL_TOKEN/VERCEL_API_TOKEN unset; latest cloud probe remains POST /api/auth/login=500 and /api/projects=401 without cookie.",
+  "ready_for_jason_final_review": false,
+  "qc_handoff_blocked": true
 }

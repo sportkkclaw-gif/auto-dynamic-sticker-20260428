@@ -5,7 +5,7 @@
  * Reads sticker items + APNG outputs from DB; runs deterministic QC.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { runQcEngine } from "@/lib/qc/qcEngine";
 import { LINE_ANIMATED_STICKER_SPEC } from "@/lib/line-spec/lineSpec";
@@ -16,6 +16,14 @@ export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // DB required for write operation
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot run QC in preview mode." },
+      { status: 503 }
+    );
+  }
 
   try {
     const body = await request.json();
@@ -140,14 +148,27 @@ export async function GET(request: NextRequest) {
   const projectId = request.nextUrl.searchParams.get("projectId");
   if (!projectId) return NextResponse.json({ error: "projectId required" }, { status: 400 });
 
-  const report = await prisma.qcReport.findUnique({ where: { projectId } });
-  if (!report) return NextResponse.json({ error: "QC report not found" }, { status: 404 });
-
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
-  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
-  if (project.userId !== user.id && user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  // DB required — QC report is project-specific, no meaningful demo fallback
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot retrieve QC report in preview mode." },
+      { status: 503 }
+    );
   }
 
-  return NextResponse.json({ qcReport: report }, { status: 200 });
+  try {
+    const report = await prisma.qcReport.findUnique({ where: { projectId } });
+    if (!report) return NextResponse.json({ error: "QC report not found" }, { status: 404 });
+
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    if (project.userId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    return NextResponse.json({ qcReport: report }, { status: 200 });
+  } catch (err) {
+    console.error("[GET /api/qc] error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

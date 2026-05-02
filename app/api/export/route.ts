@@ -6,7 +6,7 @@
  * P0 QC fail (exportBlocked=true) returns EXPORT_BLOCKED_BY_P0_QC error.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isDatabaseAvailable } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { runQcEngine } from "@/lib/qc/qcEngine";
 import { buildManifest, buildQcReportJson, minimalTransparentPngBase64 } from "@/lib/export/exportZip";
@@ -25,6 +25,14 @@ export async function GET(request: NextRequest) {
   const projectId = request.nextUrl.searchParams.get("projectId");
   if (!projectId) {
     return NextResponse.json({ error: "projectId is required" }, { status: 400 });
+  }
+
+  // ── DB required for export — return 503 if unavailable ───────────────────
+  if (!(await isDatabaseAvailable())) {
+    return NextResponse.json(
+      { error: "Database unavailable. Cannot export in preview mode. Please configure a database connection." },
+      { status: 503 }
+    );
   }
 
   // Fetch project with ownership check

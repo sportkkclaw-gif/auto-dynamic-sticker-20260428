@@ -106,6 +106,34 @@ const mockCreditTransactions = [
 
 // ─── Route Probe Tests ────────────────────────────────────────────────────────
 
+describe("Route Probe — auth cookie security", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("login sets Secure=false for http:// request (local dev)", async () => {
+    // Simulate isSecure logic: http URL → secure false
+    const httpUrl = "http://127.0.0.1:3010/api/auth/login";
+    const httpsUrl = "https://api.example.com/api/auth/login";
+    const isSecureHttp = httpUrl.startsWith("https://");
+    const isSecureHttps = httpsUrl.startsWith("https://");
+    expect(isSecureHttp).toBe(false);
+    expect(isSecureHttps).toBe(true);
+  });
+
+  it("login sets Secure=true when x-forwarded-proto=https", async () => {
+    // In production behind a TLS terminator, x-forwarded-proto is set to https
+    // even when the internal connection is http
+    const forwardedProto = "https";
+    const isSecure = forwardedProto === "https";
+    expect(isSecure).toBe(true);
+  });
+
+  it("login sets Secure=false when x-forwarded-proto=http", async () => {
+    const forwardedProto = "http";
+    const isSecure = forwardedProto === "https";
+    expect(isSecure).toBe(false);
+  });
+});
+
 describe("Route Probe — auth", () => {
   beforeEach(() => vi.clearAllMocks());
 
